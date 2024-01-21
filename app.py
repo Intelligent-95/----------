@@ -30,7 +30,5 @@ def app(environ, start_response):
     if view is None:
         view = NotFoundView(url)
     
-    # Изменение вызова метода response(), передаем environ и start_response
-    resp = view.response(environ, start_response)  # Передаем environ в метод response()
-    # Возвращаем HTTP-ответ с сгенерированной страницей
+    resp = view.response(environ, start_response)
     return resp

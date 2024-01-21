@@ -58,7 +58,7 @@
           </li>
           <li>
             <i class="fa fa-shopping-cart" aria-hidden="true"></i>
-            <a href="add.html">Cart (0)</a>
+            <a href="add.html">Add product</a>
           </li>
         </ul>
       </div>
@@ -100,19 +100,18 @@
 <!---------- Main Menu HTML Code Ends --------->
 
 <div class="registration-cssave">
-<h2 class="text-center">Регистрация</h2>
-    <form method="POST" action="/registration" id="register">
-        <input class="form-control item" placeholder="Имя" id="name" name="name"><br>
-        <input class="form-control item" placeholder="Возраст" id="age" name="age"><br>
-        <input class="form-control item" placeholder="Пол" id="sex" name="sex"><br>
-        <input class="form-control item" placeholder="Логин" id="username" name="username"><br>
-        <input class="form-control item" placeholder="Пароль" id="password" name="password"><br><br>
-        <form action="/">
-            <button class="btn btn-primary btn-block create-account" type="submit">Зарегистрироваться!</button>
-        </form>
-    </form>
+  <h2 class="text-center">Регистрация</h2>
+  <form method="POST" action="/registration" id="register-form">
+      <input class="form-control item" placeholder="Имя" id="name" name="name"><br>
+      <input class="form-control item" placeholder="Возраст" id="age" name="age"><br>
+      <input class="form-control item" placeholder="Пол" id="sex" name="sex"><br>
+      <input class="form-control item" placeholder="Логин" id="username" name="username"><br>
+      <input class="form-control item" placeholder="Пароль" id="password" name="password"><br><br>
+      <button class="btn btn-primary btn-block create-account" type="submit">Зарегистрироваться!</button>
+  </form>
 </div>
 <script src="/static/register.js"></script>
+
 
 
 <!-- Footer-Section HTML Code STARTS -->

@@ -1,15 +1,12 @@
 import json
-import time
 import uuid
 import sqlite3
 import base64
-import random
 from webob import Request
 from mimes import get_mime
 from webob.exc import HTTPFound
 from urllib.parse import parse_qs
 from collections import namedtuple
-from db import registration, log_in, md5sum
 from template_engine import render_template
 
 Response = namedtuple("Response", "status headers data") # Именнованный кортеж
@@ -103,7 +100,57 @@ class TemplateView(View):
 class IndexView(TemplateView):
     template = 'templates/main_index.html'
 
+class ProductView(TemplateView):
+    template = 'templates/product.html'
 
+    def get_product_info(self, product_id):
+        try:
+            conn = sqlite3.connect('database.db')
+            cursor = conn.cursor()
+            cursor.execute("SELECT product_name, description, price, photo, category FROM Products WHERE product_id=?", (product_id,))
+            product_info = cursor.fetchone()
+            conn.close()
+            return product_info
+        except sqlite3.Error as e:
+            print("Error fetching product info:", e)
+            return None
+
+    def response(self, environ, start_response):
+        request = Request(environ)
+        path_info = request.path_info
+
+        if path_info == '/get_product_info':
+            query_params = parse_qs(environ['QUERY_STRING'])
+            product_id = query_params.get('product_id', [None])[0]
+
+            if product_id:
+                product_info = self.get_product_info(product_id)
+
+                if product_info:
+                    status = '200 OK'
+                    headers = [('Content-type', 'application/json')]
+                    response_data = json.dumps({
+                        'product_name': product_info[0],
+                        'description': product_info[1],
+                        'price': product_info[2],
+                        'photo': f"data:image/jpeg;base64,{base64.b64encode(product_info[3]).decode('utf-8')}",
+                        'category': product_info[4]
+                    })
+                else:
+                    status = '404 Not Found'
+                    headers = [('Content-type', 'application/json')]
+                    response_data = json.dumps({'error': 'Product not found'})
+            else:
+                status = '400 Bad Request'
+                headers = [('Content-type', 'application/json')]
+                response_data = json.dumps({'error': 'Missing product_id parameter'})
+        else:
+            return super().response(environ, start_response)
+
+        start_response(status, headers)
+        return [response_data.encode('utf-8')]
+
+        
 class NotFoundView(TemplateView):
     pass
     
@@ -111,87 +158,70 @@ class NotFoundView(TemplateView):
 class AuthorizationView(TemplateView):
     template = 'templates/authorization.html'
 
+
 class AddView(TemplateView):
     template = 'templates/add.html'
 
-    def post(self, environ, start_response):
-        print("Received POST request to AddView")  
-        data = self.get_post_data(environ)
-        print("Received data:", data)  
-
-        product_name = data.get('product_name', '')
-        description = data.get('description', '')
-        price = data.get('price', '')
-        category = data.get('category', '')
-        photo = data.get('photo', None)
-
-        # Изменено: Получение user_id из cookies
-        user_id = self.get_user_id_from_cookies(environ)
-
-        if product_name and description and price and category and photo and user_id:
-            print("All required fields present")  
-            photo_data = base64.b64decode(photo.split(",")[1])
-
-            # Изменено: Используем user_id вместо случайного пользователя
-            self.add_product_to_database(product_name, description, price, category, photo_data, user_id)
-
+    def response(self, environ, start_response):
+        if environ['REQUEST_METHOD'] == 'POST':
+            request = Request(environ)
+            post_data = request.POST
+            self.handle_post_data(post_data)
             status = '200 OK'
             headers = [('Content-type', 'application/json')]
-            response_data = json.dumps({'message': 'Product added successfully'})
+            data = json.dumps({'redirect': '/'})
+            start_response(status, headers)
+            return [data.encode('utf-8')]
+        
         else:
-            status = '400 Bad Request'
-            headers = [('Content-type', 'application/json')]
-            response_data = json.dumps({'error': 'Missing required fields'})
-            
+            return super().response(environ, start_response)
 
-        start_response(status, headers)
-        return [response_data.encode('utf-8')]
+    def handle_post_data(self, post_data):
+        product_name = post_data.get('product_name', '')
+        description = post_data.get('description', '')
+        price = post_data.get('price', '')
+        photo = post_data.get('photo', None)
+        category = post_data.get('category', '')
 
-
-        return super().response(environ, start_response)
-
-    def add_product_to_database(self, product_name, description, price, category, photo_data, user_id):
         try:
             conn = sqlite3.connect('database.db')
             cursor = conn.cursor()
-
-            cursor.execute('INSERT INTO Products (product_name, description, price, user_id, photo, category) VALUES (?, ?, ?, ?, ?, ?)',
-                           (product_name, description, price, user_id, photo_data, category))
-
+            cursor.execute(
+                'INSERT INTO Products (product_name, description, price, photo, category) VALUES (?, ?, ?, ?, ?)',
+                (product_name, description, price, photo.file.read(), category)
+            )
             conn.commit()
-            print("Product added successfully!")
-        except sqlite3.Error as e:
-            print("Error", e)
-        finally:
-            cursor.close()
             conn.close()
+        except Exception as e:
+            print(f"Error while handling post data: {e}")
+
 
     def get_user_id_from_cookies(self, environ):
         request = Request(environ)
         user_id_cookie = request.cookies.get('user_id')
         return user_id_cookie
 
-
-
 class RegistrationView(TemplateView):
     template = 'templates/registration.html'
 
     def response(self, environ, start_response):
-        request = Request(environ)
-        if request.method == 'POST':
-            post_data = request.POST
-            name = post_data.get('name', '')
-            age = post_data.get('age', '')
-            sex = post_data.get('sex', '')
-            username = post_data.get('username', '')
-            password = post_data.get('password', '')
-            print(f"Received username reg_us: {username}, password: {password}, {name}, {age}, {sex}")
-            if name and age and sex and username and password:
-                success = self.register_user(name, age, sex, username, password)
+        if environ['REQUEST_METHOD'] == 'POST':
+            request = Request(environ)
+            post_data = parse_qs(request.body.decode('utf-8'))
+            username = post_data.get('username', [''])[0]
+            password = post_data.get('password', [''])[0]
+            name = post_data.get('name', [''])[0]
+            sex = post_data.get('sex', [''])[0]
+            age = post_data.get('age', [''])[0]
+
+            print(f"Received username: {username}, password: {password}, name: {name}, sex: {sex}, age: {age}")
+
+            if username and password and name and sex and age:
+                success = self.register_user(username, password, name, sex, age)
                 if success:
                     status = '200 OK'
                     headers = [('Content-type', 'application/json')]
-                    data = json.dumps({'message': 'User registered successfully'})
+                    data = json.dumps({'redirect': '/login', 'message': 'User registered successfully'})
                 else:
                     status = '400 Bad Request'
                     headers = [('Content-type', 'application/json')]
@@ -203,8 +233,10 @@ class RegistrationView(TemplateView):
 
             start_response(status, headers)
             return [data.encode('utf-8')]
+        else:
 
-        return super().response(environ, start_response)
+            return super().response(environ, start_response)
+
 
 
     def register_user(self, name, age, sex, username, password):
@@ -212,10 +244,8 @@ class RegistrationView(TemplateView):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
-        # Генерируем уникальный идентификатор пользователя
         user_id = uuid.uuid4().hex
 
-        # Проверяем, есть ли уже пользователь с таким именем
         cursor.execute('SELECT * FROM Users WHERE login=?', (username,))
         existing_user = cursor.fetchone()
 
@@ -223,9 +253,7 @@ class RegistrationView(TemplateView):
             conn.close()
             return False  # Пользователь с таким именем уже существует
 
-        # Если пользователь не найден, регистрируем нового
-        cursor.execute('INSERT INTO Users (login, password, user_id, name, sex, age) VALUES (?, ?, ?, ?, ?, ?)', 
-                        (username, password, user_id, name, sex, age))
+        cursor.execute('INSERT INTO Users (login, password, user_id, name, sex, age) VALUES (?, ?, ?, ?, ?, ?)', (username, password, user_id, name, sex, age))
         conn.commit()
         conn.close()
         return True  # Пользователь успешно зарегистрирован
@@ -233,13 +261,11 @@ class RegistrationView(TemplateView):
     def get_post_data(self, request, key):
         try:
             data = request.POST.get(key, '')
+            #print(f"Received data for {key}: {data}") 
             return data
         except Exception as e:
             print(f"Error while extracting {key}: {e}")
             return None
-
-
-
 
 
 class LoginView(TemplateView):
@@ -255,7 +281,6 @@ class LoginView(TemplateView):
             if username and password:
                 user_id = self.authenticate_user(username, password)
                 if user_id:
-                    # Вместо редиректа возвращаем JSON с информацией о редиректе
                     status = '200 OK'
                     headers = [('Content-type', 'application/json')]
                     data = json.dumps({'redirect': '/', 'user_id': str(user_id[0])})  
@@ -282,12 +307,10 @@ class LoginView(TemplateView):
 
         print(f"Received username: {username}, password: {password}")
         
-        # Проверяем, существует ли пользователь с таким именем и паролем
         cursor.execute('SELECT user_id FROM Users WHERE login=? AND password=?', (username, password))
         user_id = cursor.fetchone()
         conn.close()
-
-        # Если пользователь существует, возвращаем его ID, иначе None
+        
         print("Authenticated user_id:", user_id)  
 
         return user_id
@@ -301,60 +324,3 @@ class LoginView(TemplateView):
             print(f"Error while extracting POST data: {e}")
             return None
 
-
-
-class GetUserIdView(View):
-
-    # Функция для получения user_id из базы данных по имени пользователя
-    def fetch_user_id_from_database(self, username):
-        connection = sqlite3.connect('database.db')
-        cursor = connection.cursor()
-
-        # Используем параметризованный запрос для предотвращения SQL-инъекций
-        cursor.execute("SELECT user_id FROM Users WHERE login=?", (username,))
-        
-        user_id = cursor.fetchone()
-
-        cursor.close()
-        connection.close()
-
-        return user_id[0] if user_id else None
-
-    def response(self, environ, start_response):
-        headers = [
-            ('Content-type', 'application/json'),
-            ('Access-Control-Allow-Origin', 'http://localhost:8000'),  
-            ('Access-Control-Allow-Credentials', 'true'), 
-            ]
-
-        request = Request(environ)
-
-        user_id_cookie = request.cookies.get('user_id')
-
-        if user_id_cookie:
-            user_id = user_id_cookie
-        else:
-            user_id = None
-
-        print("Response from /get_user_id:", {"user_id": user_id})
-
-        if user_id is None:
-            print("User ID is None. Cannot fetch messages.")
-            status = '200 OK'
-            data = json.dumps({'user_id': None})
-            start_response(status, headers)
-            return [data.encode('utf-8')]
-        else:
-            print(f"Fetching messages for user_id: {user_id}")
-
-            fetched_user_id = self.fetch_user_id_from_database(user_id)
-
-            if fetched_user_id is not None:
-                user_id = fetched_user_id
-
-            print("Fetched user_id:", user_id)
-
-            status = '200 OK'
-            data = json.dumps({'user_id': str(user_id)})  
-            start_response(status, headers + [('Set-Cookie', f'user_id={user_id}; Path=/')])
-            return [data.encode('utf-8')]

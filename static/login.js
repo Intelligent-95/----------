@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 console.log("Server response:", data);
-                localStorage.setItem('username', username);
+                sessionStorage.setItem('username', username);
 
                 if (data.redirect) {
                     console.log("Redirecting to:", data.redirect);
@@ -46,7 +46,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     localStorage.setItem('username', username);
                     console.log("Username saved to localStorage:", username);
                     console.log("Current localStorage:", localStorage);
-
                 } else {
                     if (data.user_id && data.user_id !== 'null') {
                         localStorage.setItem('username', username);
@@ -57,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
             })
-            
             .catch(error => {
                 console.error("There was a problem with the fetch operation:", error);
             });
@@ -70,12 +68,10 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 console.log("After fetching user_id. Current user_id:", data.user_id, "nick:", username);
                 localStorage.setItem('username', username);
-                console.log("User ID and username saved to localStorage:",username);
+                console.log("User ID and username saved to localStorage:", username);
             })
             .catch(error => {
                 console.error("Error fetching user_id:", error);
             });
     }
-    
-    
 });

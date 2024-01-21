@@ -6,7 +6,7 @@ routes = {
     '/add': AddView,
     '/login': LoginView,
     '/registration': RegistrationView,
-    '/get_user_id': GetUserIdView
+    '/product': ProductView
 }
 
 def route(url):

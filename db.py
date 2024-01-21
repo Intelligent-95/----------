@@ -42,14 +42,6 @@ cursor.execute('''
                )''')
 
 conn.commit()
-
-# Сессии
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS ID (
-        user_id INTEGER
-    )
-''')
-conn.commit()
 conn.close()
 
 # Регистрация
