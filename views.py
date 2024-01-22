@@ -42,6 +42,9 @@ class TemplateView(View):
         self.url = '/' + self.template
 
     def response(self, environ, start_response):
+        # Обновление данных о случайном товаре
+        self.get_random_product()
+
         file_name = self.path + self.url
         headers = [('Content-type', get_mime(file_name))]
         try:
@@ -58,8 +61,7 @@ class TemplateView(View):
         with open(file_name, 'r', encoding='utf-8') as file:
             return file.read()
 
-
-    def get_random_product():
+    def get_random_product(self):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
@@ -69,32 +71,24 @@ class TemplateView(View):
         cursor.close()
         conn.close()
 
-        return product
+        photo_data = product[3]
+        photo_base64 = base64.b64encode(photo_data).decode('utf-8')
 
-    random_item = get_random_product()
+        data = {
+            'product_name': product[0],
+            'description': product[1],
+            'price': product[2],
+            'photo': f"data:image/jpeg;base64,{photo_base64}",
+            'category': product[4]
+        }
 
-    photo_data = random_item[3] 
-    photo_base64 = base64.b64encode(photo_data).decode('utf-8')
+        with open('templates/index.html', 'r', encoding='utf-8') as file:
+            html_template = file.read()
 
-    data = {
-        'product_name': random_item[0],
-        'description': random_item[1],
-        'price': random_item[2],
-        'photo': f"data:image/jpeg;base64,{photo_base64}",  
-        'category': random_item[4]
-    }
+        rendered_html = render_template(html_template, **data)
 
-
-
-    with open('templates/index.html', 'r', encoding='utf-8') as file:
-        html_template = file.read()
-
-
-    rendered_html = render_template(html_template, **data)
-
-
-    with open('templates/main_index.html', 'w', encoding='utf-8') as file:
-        file.write(rendered_html)
+        with open('templates/main_index.html', 'w', encoding='utf-8') as file:
+            file.write(rendered_html)
     
 
 class IndexView(TemplateView):
