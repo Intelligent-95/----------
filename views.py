@@ -42,7 +42,6 @@ class TemplateView(View):
         self.url = '/' + self.template
 
     def response(self, environ, start_response):
-        # Обновление данных о случайном товаре
         self.get_random_product()
 
         file_name = self.path + self.url
