@@ -100,22 +100,17 @@
 <div class="registration-cssave">
   <h1>Add Product</h1>
   <form action="/add" method="POST" id="add-form" enctype="multipart/form-data">
-      <label for="product_name">Product Name:</label><br>
-      <input class="form-control item" type="text" id="product_name" name="product_name"><br><br>
+      <input class="form-control item" placeholder="Product Name" type="text" id="product_name" name="product_name"><br><br>
 
-      <label for="description">Description:</label><br>
-      <textarea class="form-control item" id="description" name="description"></textarea><br><br>
+      <textarea class="form-control item" placeholder="Description" id="description" name="description"></textarea><br><br>
 
-      <label for="price">Price:</label><br>
-      <input class="form-control item" type="text" id="price" name="price"><br><br>
+      <input class="form-control item" placeholder="Price" type="text" id="price" name="price"><br><br>
 
-      <label for="photo">Photo:</label><br>
-      <input class="form-control item" type="file" id="photo" name="photo"><br><br>
+      <input class="form-control item" placeholder="Photo" type="file" id="photo" name="photo"><br><br>
 
-      <label for="category">Category:</label><br>
-      <input class="form-control item" type="text" id="category" name="category"><br><br>
+      <input class="form-control item" placeholder="Category" type="text" id="category" name="category"><br><br>
 
-      <input class="form-control item" type="submit" value="Add Product">
+      <input class="btn" type="submit" value="Add Product">
   </form>
 </div>
 <script src="static/add.js" defer></script>

@@ -342,9 +342,12 @@ html {
   }
   
   .registration-cssave .item {
+    margin:0 25% 0 25%;
+    width:50%;
     border-radius:10px;
     margin-bottom:25px;
     padding:10px 20px;
+    text-align: center;
   }
   
   .registration-cssave .create-account {
@@ -357,4 +360,62 @@ html {
     color:white;
     margin-top:20px;
   }
+
+
+  .notification {
+    font-size: 18px; /* Измените размер текста по вашему желанию */
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.notification.error {
+    color: #ff0000; /* Красный цвет для сообщений об ошибке */
+    background-color: #ffe5e5; /* Фоновый цвет для сообщений об ошибке */
+}
+
+.notification.success {
+    color: #008000; /* Зеленый цвет для успешных сообщений */
+    background-color: #e5ffe5; /* Фоновый цвет для успешных сообщений */
+}
      /**********   LOGIN CSS Code Ends  **********/
+  
+.welcome-notification {
+    display: inline-block;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: #fff;
+    border-radius: 20px;
+    border-color: #fff;
+    position: fixed;
+    top: 50px;
+    right: 200px;
+    z-index: 1000;
+}
+
+.welcome-notification.error {
+    background-color: #f44336;
+}
+
+::placeholder {
+  text-align: center;
+}
+
+.btn {
+  padding: 0.5em 1.5em; /* Расстояние от текста до края */
+  margin:0 25% 0 25%;
+  width:50%;
+  background-color: #293948; /* Цвет фона */
+  color: #fff; /* Белый цвет текста */
+  border-radius: 0.4em; /* Радиус скругления */
+  border: none; /* Убираем рамку */
+  font-size: 0.9em; /* Размер шрифта */
+  transition: 0.5s; /* Время перехода */
+ }
+ .btn:hover {
+  background-color: #f89d13; /* Цвет фона при наведении */
+ }
+ .btn:active {
+  background-color: #f05347; /* Красный фон у активной кнопки */
+ }

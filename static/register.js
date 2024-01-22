@@ -6,6 +6,26 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
+    function displayNotification(message, isError) {
+        const notificationDiv = document.createElement('div');
+        notificationDiv.classList.add('notification', isError ? 'error' : 'success');
+        notificationDiv.textContent = message;
+
+        registerForm.parentNode.insertBefore(notificationDiv, registerForm);
+
+        setTimeout(() => {
+            hideNotification();
+        }, 3000);
+    }
+
+    function hideNotification() {
+        const notificationDiv = document.querySelector('.notification');
+
+        if (notificationDiv) {
+            notificationDiv.parentNode.removeChild(notificationDiv);
+        }
+    }
+
     registerForm.addEventListener("submit", function (e) {
         e.preventDefault();
         console.log("Form submitted");
@@ -21,6 +41,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const name = nameInput.value;
         const sex = sexInput.value;
         const age = ageInput.value;
+
+        if (!username || !password || !name || !sex || !age) {
+            displayNotification("Все поля должны быть заполнены", true);
+            return;
+        }
 
         const requestBody = new URLSearchParams({ username, password, name, sex, age });
 

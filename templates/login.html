@@ -99,18 +99,19 @@
 </div>
 <!---------- Main Menu HTML Code Ends --------->
 <div class="registration-cssave">
-    <h1>Форма входа</h1>
+    <div class="registration-cssave"></div>
     <form method="POST" action="/login" id="login-form">
         <input class="form-control item" placeholder="Логин" id="username" name="username"><br>
         <input class="form-control item" placeholder="Пароль" id="password" name="password"><br><br>
+        <div id="notification-container"></div>
         <form action="/">
-            <button class="btn btn-primary btn-block create-account" type="submit">Авторизироваться</button>
+            <button class="btn" type="submit">Авторизироваться</button>
         </form>
     </form>
 </div>
 <script src="/static/login.js"></script>
 
-
+<div id="notification-container"></div>
 <!-- Footer-Section HTML Code STARTS -->
 <div class="width-100 margin-top-50 footer">
   <div class="container">

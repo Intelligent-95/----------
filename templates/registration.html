@@ -100,14 +100,17 @@
 <!---------- Main Menu HTML Code Ends --------->
 
 <div class="registration-cssave">
-  <h2 class="text-center">Регистрация</h2>
+  <h2 class="text-center">Sign up!</h2>
   <form method="POST" action="/registration" id="register-form">
       <input class="form-control item" placeholder="Имя" id="name" name="name"><br>
       <input class="form-control item" placeholder="Возраст" id="age" name="age"><br>
-      <input class="form-control item" placeholder="Пол" id="sex" name="sex"><br>
+      <select class="form-control item" id="sex" name="sex">
+        <option value="male">Мужской</option>
+        <option value="female">Женский</option>
+      </select><br>
       <input class="form-control item" placeholder="Логин" id="username" name="username"><br>
       <input class="form-control item" placeholder="Пароль" id="password" name="password"><br><br>
-      <button class="btn btn-primary btn-block create-account" type="submit">Зарегистрироваться!</button>
+      <button class="btn" type="submit">Зарегистрироваться!</button>
   </form>
 </div>
 <script src="/static/register.js"></script>
