@@ -1,16 +1,13 @@
 document.addEventListener("DOMContentLoaded", function () {
     const loginForm = document.getElementById("login-form");
 
-    // Функции displayNotification и hideNotification определены вне обработчика события
     function displayNotification(message, isError) {
         const notificationDiv = document.createElement('div');
         notificationDiv.classList.add('notification', isError ? 'error' : 'success');
         notificationDiv.textContent = message;
 
-        // Вставляем уведомление перед формой ввода
         loginForm.parentNode.insertBefore(notificationDiv, loginForm);
 
-        // Скрыть уведомление через 3 секунды
         setTimeout(() => {
             hideNotification();
         }, 3000);
@@ -20,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const notificationDiv = document.querySelector('.notification');
 
         if (notificationDiv) {
-            // Удаляем уведомление из DOM
             notificationDiv.parentNode.removeChild(notificationDiv);
         }
     }
@@ -39,7 +35,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Username input (login.html):", username);
         console.log("Password input (login.html):", password);
 
-        // Проверка на пустые поля
         if (!username || !password) {
             displayNotification("Все поля должны быть заполнены", true);
             return;

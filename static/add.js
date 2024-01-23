@@ -1,16 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
     const addForm = document.getElementById("add-form");
 
-    // Функции displayNotification и hideNotification определены вне обработчика события
     function displayNotification(message, isError) {
         const notificationDiv = document.createElement('div');
         notificationDiv.classList.add('notification', isError ? 'error' : 'success');
         notificationDiv.textContent = message;
-
-        // Вставляем уведомление перед формой ввода
         addForm.parentNode.insertBefore(notificationDiv, addForm);
 
-        // Скрыть уведомление через 3 секунды
         setTimeout(() => {
             hideNotification();
         }, 3000);
@@ -20,7 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const notificationDiv = document.querySelector('.notification');
 
         if (notificationDiv) {
-            // Удаляем уведомление из DOM
             notificationDiv.parentNode.removeChild(notificationDiv);
         }
     }

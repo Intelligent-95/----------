@@ -30,11 +30,11 @@ document.addEventListener("DOMContentLoaded", function () {
         e.preventDefault();
         console.log("Form submitted");
 
+        const nameInput = document.getElementById("name");
+        const ageInput = document.getElementById("age");
+        const sexInput = document.getElementById("sex");
         const usernameInput = document.getElementById("username");
         const passwordInput = document.getElementById("password");
-        const nameInput = document.getElementById("name");
-        const sexInput = document.getElementById("sex");
-        const ageInput = document.getElementById("age");
 
         const username = usernameInput.value;
         const password = passwordInput.value;
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            
+
             if (response.redirected) {
                 console.log("Redirecting manually to:", response.url);
                 window.location.replace(response.url);
@@ -86,6 +86,9 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => {
             console.error('There was a problem with the fetch operation:', error);
+
+            console.error('Server error details:', error.message);
+
         });
     });
 });

@@ -149,16 +149,16 @@ class RegistrationView(TemplateView):
         if environ['REQUEST_METHOD'] == 'POST':
             request = Request(environ)
             post_data = parse_qs(request.body.decode('utf-8'))
+            name = post_data.get('name', [''])[0]
+            age = post_data.get('age', [''])[0]
+            sex = post_data.get('sex', [''])[0]
             username = post_data.get('username', [''])[0]
             password = post_data.get('password', [''])[0]
-            name = post_data.get('name', [''])[0]
-            sex = post_data.get('sex', [''])[0]
-            age = post_data.get('age', [''])[0]
 
-            print(f"Received username: {username}, password: {password}, name: {name}, sex: {sex}, age: {age}")
+            print(f"Received name: {name}, age: {age}, sex: {sex}, username: {username}, password: {password}")
 
-            if username and password and name and sex and age:
-                success = self.register_user(username, password, name, sex, age)
+            if name and age and sex and username and password:
+                success = self.register_user(name, age, sex, username, password)
                 if success:
                     status = '200 OK'
                     headers = [('Content-type', 'application/json')]
@@ -181,23 +181,28 @@ class RegistrationView(TemplateView):
 
 
     def register_user(self, name, age, sex, username, password):
-        print(f"Received username reg_us: {username}, password: {password}")
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
+        try:
+            print(f"Received username reg_us: {username}, password: {password}")
+            conn = sqlite3.connect('database.db')
+            cursor = conn.cursor()
 
-        user_id = uuid.uuid4().hex
+            user_id = uuid.uuid4().hex
 
-        cursor.execute('SELECT * FROM Users WHERE login=?', (username,))
-        existing_user = cursor.fetchone()
+            cursor.execute('SELECT * FROM Users WHERE login=?', (username,))
+            existing_user = cursor.fetchone()
 
-        if existing_user:
+            if existing_user:
+                conn.close()
+                return False
+
+            cursor.execute('INSERT INTO Users (login, password, user_id, name, sex, age) VALUES (?, ?, ?, ?, ?, ?)', (username, password, user_id, name, sex, age))
+            conn.commit()
             conn.close()
-            return False  # Пользователь с таким именем уже существует
+            return True
 
-        cursor.execute('INSERT INTO Users (login, password, user_id, name, sex, age) VALUES (?, ?, ?, ?, ?, ?)', (username, password, user_id, name, sex, age))
-        conn.commit()
-        conn.close()
-        return True  # Пользователь успешно зарегистрирован
+        except Exception as e:
+            print(f"Error during registration: {e}")
+            return False
 
     def get_post_data(self, request, key):
         try:
